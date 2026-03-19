@@ -7,6 +7,7 @@ const Login = {
             <div v-if="!isLoggedIn">
                 <input v-model="username" placeholder="Username" /><br>
                 <button @click="simpleLogin">Standard Login</button>
+                <button @click="clearStorage">Clear Storage</button>
                 <hr>
                 <button v-if="hasBiometrics" @click="biometricLogin">Login with Fingerprint</button>
             </div>
@@ -30,6 +31,11 @@ const Login = {
             localStorage.setItem('user', username.value);
             localStorage.setItem('isLoggedIn', 'true');
             isLoggedIn.value = true;
+        };
+
+        const clearStorage = () => {
+            localStorage.clear();
+            username.value = '';
         };
 
         const registerBiometric = async () => {
