@@ -1,5 +1,5 @@
 window.CONSTANTS = {
     API_URLS: {
-        CRIADORES_PUBLICOS: 'https://merino.com.ar/handlerws/CriadoresPublicos.ashx'
+        CRIADORES_PUBLICOS: 'https://www.merinorrgg.org.ar/handlers/CriadoresPublicos.ashx'
     }
 };
