@@ -1,6 +1,7 @@
 const RandomList = {
     template: `
         <div class="card">
+            <button @click="$router.go(-1)">Back</button>
             <h1>Consulta de criadores</h1>
             <input v-model="search" placeholder="Buscar..." />
             <table style="width: 100%; border-collapse: collapse;">
