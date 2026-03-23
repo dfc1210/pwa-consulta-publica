@@ -96,7 +96,7 @@ const MainScreen = {
                 error.value = "Registration failed: " + err.message;
             }
         };
-
+        //...
         const logout = () => {
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('user');
