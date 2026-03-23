@@ -148,7 +148,7 @@ const RandomList = {
             try {
                 const response = await fetch(window.CONSTANTS.API_URLS.CRIADORES_PUBLICOS);
                 const data = await response.json();
-                items.value = Array.isArray(data) ? data : [];
+                items.value = Array.isArray(data.DB.Criadores) ? data.DB.Criadores : [];
             } catch (error) {
                 console.error('Error fetching data:', error);
                 items.value = [];
