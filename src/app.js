@@ -1,4 +1,4 @@
-const { ref, onMounted, computed } = Vue;
+const { ref, onMounted } = Vue;
 
 const Login = {
     template: `
@@ -107,63 +107,12 @@ const MainScreen = {
     }
 };
 
-const RandomList = {
-    template: `
-        <div class="card">
-            <h1>Consulta de criadores</h1>
-            <input v-model="search" placeholder="Buscar..." />
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th style="border: 1px solid #ccc; padding: 8px;">Codigo Criador</th>
-                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Descripcion</th>
-                        <th style="border: 1px solid #ccc; padding: 8px; text-align: center;">Contacto</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in filteredItems" :key="item.cCriador || item.name">
-                        <td style="border: 1px solid #ccc; padding: 8px;">{{ item.cCriador }}</td>
-                        <td style="border: 1px solid #ccc; padding: 8px; text-align: left;">{{ item.dCriador }}</td>
-                        <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">{{ item.dTelefono }}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <button @click="$router.go(-1)">Back</button>
-        </div>
-    `,
-    setup() {
-        const items = ref([]);
-        const search = ref('');
-
-        const filteredItems = computed(() => {
-            if (!search.value) return items.value;
-            return items.value.filter(item =>
-                (item.cCriador && item.cCriador.toString().toLowerCase().includes(search.value.toLowerCase())) ||
-                (item.dCriador && item.dCriador.toLowerCase().includes(search.value.toLowerCase())) ||
-                (item.dTelefono && item.dTelefono.toLowerCase().includes(search.value.toLowerCase()))
-            );
-        });
-
-        onMounted(async () => {
-            try {
-                const response = await fetch(window.CONSTANTS.API_URLS.CRIADORES_PUBLICOS);
-                const data = await response.json();
-                items.value = Array.isArray(data.DB.Criadores) ? data.DB.Criadores : [];
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                items.value = [];
-            }
-        });
-
-        return { items, search, filteredItems };
-    }
-};
-
 const router = new VueRouter({ routes: [
     { path: '/', component: Login },
     { path: '/main', component: MainScreen },
-    { path: '/random-list', component: RandomList }
-] });
+    { path: '/random-list', component: RandomList },
+    { path: '/establecimientos/:cCriador', component: EstablecimientosDetail }
+], mode: 'hash' });
 new Vue({ el: '#app', router, mounted() {
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js');
 }});
