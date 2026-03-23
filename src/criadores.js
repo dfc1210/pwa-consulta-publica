@@ -1,5 +1,3 @@
-const { ref, computed, onMounted } = Vue;
-
 const RandomList = {
     template: `
         <div class="card">

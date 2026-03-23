@@ -1,5 +1,3 @@
-const { ref, onMounted } = Vue;
-
 const EstablecimientosDetail = {
     template: `
         <div class="card">

@@ -1,5 +1,3 @@
-const { ref, onMounted } = Vue;
-
 const Login = {
     template: `
         <div class="card">
