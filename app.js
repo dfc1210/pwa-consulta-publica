@@ -65,7 +65,7 @@ const MainScreen = {
         <div class="card">
             <h1>Welcome Back!</h1>
             <p>Hello, {{ username }}!</p>
-            <router-link to="/random-list"><button>Consulta de animales</button></router-link>
+            <router-link to="/random-list"><button>Consulta de criadores</button></router-link>
             <button v-if="!isEnrolled" @click="registerBiometric">Enable Fingerprint Login</button>
             <button @click="logout">Logout</button>
         </div>
@@ -110,13 +110,24 @@ const MainScreen = {
 const RandomList = {
     template: `
         <div class="card">
-            <h1>Consulta de animales</h1>
+            <h1>Consulta de criadores</h1>
             <input v-model="search" placeholder="Buscar..." />
-            <ul>
-                <li v-for="item in filteredItems" :key="item.id || item.name">
-                    {{ item.name }} - {{ item.description || item.tipo || '' }}
-                </li>
-            </ul>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid #ccc; padding: 8px;">Codigo Criador</th>
+                        <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Descripcion</th>
+                        <th style="border: 1px solid #ccc; padding: 8px; text-align: center;">Contacto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in filteredItems" :key="item.cCriador || item.name">
+                        <td style="border: 1px solid #ccc; padding: 8px;">{{ item.cCriador }}</td>
+                        <td style="border: 1px solid #ccc; padding: 8px; text-align: left;">{{ item.dCriador }}</td>
+                        <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">{{ item.dTelefono }}</td>
+                    </tr>
+                </tbody>
+            </table>
             <button @click="$router.go(-1)">Back</button>
         </div>
     `,
@@ -127,14 +138,15 @@ const RandomList = {
         const filteredItems = computed(() => {
             if (!search.value) return items.value;
             return items.value.filter(item =>
-                item.name.toLowerCase().includes(search.value.toLowerCase()) ||
-                (item.description && item.description.toLowerCase().includes(search.value.toLowerCase()))
+                (item.cCriador && item.cCriador.toString().toLowerCase().includes(search.value.toLowerCase())) ||
+                (item.dCriador && item.dCriador.toLowerCase().includes(search.value.toLowerCase())) ||
+                (item.dTelefono && item.dTelefono.toLowerCase().includes(search.value.toLowerCase()))
             );
         });
 
         onMounted(async () => {
             try {
-                const response = await fetch('https://merino.com.ar/handlerws/AnimalesPublicos.ashx');
+                const response = await fetch(window.CONSTANTS.API_URLS.CRIADORES_PUBLICOS);
                 const data = await response.json();
                 items.value = Array.isArray(data) ? data : [];
             } catch (error) {
