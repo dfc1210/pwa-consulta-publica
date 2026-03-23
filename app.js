@@ -1,4 +1,4 @@
-const { ref, onMounted } = Vue;
+const { ref, onMounted, computed } = Vue;
 
 const Login = {
     template: `
@@ -65,7 +65,7 @@ const MainScreen = {
         <div class="card">
             <h1>Welcome Back!</h1>
             <p>Hello, {{ username }}!</p>
-            <router-link to="/random-list"><button>View Random List</button></router-link>
+            <router-link to="/random-list"><button>Consulta de animales</button></router-link>
             <button v-if="!isEnrolled" @click="registerBiometric">Enable Fingerprint Login</button>
             <button @click="logout">Logout</button>
         </div>
@@ -110,37 +110,40 @@ const MainScreen = {
 const RandomList = {
     template: `
         <div class="card">
-            <h1>Random Objects List</h1>
+            <h1>Consulta de animales</h1>
+            <input v-model="search" placeholder="Buscar..." />
             <ul>
-                <li v-for="item in items" :key="item.id">
-                    {{ item.name }} - {{ item.description }}
+                <li v-for="item in filteredItems" :key="item.id || item.name">
+                    {{ item.name }} - {{ item.description || item.tipo || '' }}
                 </li>
             </ul>
             <button @click="$router.go(-1)">Back</button>
         </div>
     `,
     setup() {
-        const objects = [
-            { name: 'Apple', description: 'A juicy fruit' },
-            { name: 'Car', description: 'A fast vehicle' },
-            { name: 'Book', description: 'A source of knowledge' },
-            { name: 'Dog', description: 'A loyal pet' },
-            { name: 'Phone', description: 'A smart device' },
-            { name: 'Tree', description: 'A tall plant' },
-            { name: 'Ocean', description: 'A vast body of water' },
-            { name: 'Mountain', description: 'A high landform' },
-            { name: 'Star', description: 'A celestial body' },
-            { name: 'Music', description: 'A form of art' }
-        ];
         const items = ref([]);
-        const generateRandomList = () => {
-            const shuffled = [...objects].sort(() => 0.5 - Math.random());
-            items.value = shuffled.slice(0, 5).map((obj, index) => ({ id: index, ...obj }));
-        };
-        onMounted(() => {
-            generateRandomList();
+        const search = ref('');
+
+        const filteredItems = computed(() => {
+            if (!search.value) return items.value;
+            return items.value.filter(item =>
+                item.name.toLowerCase().includes(search.value.toLowerCase()) ||
+                (item.description && item.description.toLowerCase().includes(search.value.toLowerCase()))
+            );
         });
-        return { items };
+
+        onMounted(async () => {
+            try {
+                const response = await fetch('https://merino.com.ar/handlerws/AnimalesPublicos.ashx');
+                const data = await response.json();
+                items.value = Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                items.value = [];
+            }
+        });
+
+        return { items, search, filteredItems };
     }
 };
 
