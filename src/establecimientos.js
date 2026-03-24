@@ -16,7 +16,7 @@ const EstablecimientosDetail = {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in establecimientos" :key="item.cEstablecimiento" style="border-bottom: 1px solid #ccc;">
+                        <tr v-for="item in establecimientos" :key="item.cEstablecimiento" style="border-bottom: 1px solid #ccc; cursor: pointer;" @click="viewAnimales(item.cEstablecimiento)">
                             <td style="border: 1px solid #ccc; padding: 8px; text-align: left;">{{ item.dEstablecimiento }}</td>
                             <td style="border: 1px solid #ccc; padding: 8px; text-align: left;">{{ item.dPrefijo }}</td>
                             <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">{{ item.dTelefono }}</td>
@@ -47,6 +47,10 @@ const EstablecimientosDetail = {
             }
         });
 
-        return { selectedCriadorCode, establecimientos, loading };
+        const viewAnimales = (cEstablecimiento) => {
+            router.push(`/establecimientos/${selectedCriadorCode.value}/animales/${cEstablecimiento}`);
+        };
+
+        return { selectedCriadorCode, establecimientos, loading, viewAnimales };
     }
 };

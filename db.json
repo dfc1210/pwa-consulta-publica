@@ -1,5 +1,15 @@
 {
   "DB": {
+    "Generos" : [
+      {
+        "cGenero": "1",
+        "dGenero": "Macho"
+      },
+      {
+        "cGenero": "0",
+        "dGenero": "Hembra"
+      }
+    ],
     "Criadores": [
       {
         "cCriador": "257",

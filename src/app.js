@@ -109,7 +109,8 @@ const router = new VueRouter({ routes: [
     { path: '/', component: Login },
     { path: '/main', component: MainScreen },
     { path: '/random-list', component: RandomList },
-    { path: '/establecimientos/:cCriador', component: EstablecimientosDetail }
+    { path: '/establecimientos/:cCriador', component: EstablecimientosDetail },
+    { path: '/establecimientos/:cCriador/animales/:cEstablecimiento', component: AnimalesDetail }
 ], mode: 'hash' });
 new Vue({ el: '#app', router, mounted() {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js');
