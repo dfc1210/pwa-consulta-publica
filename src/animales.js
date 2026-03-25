@@ -6,8 +6,8 @@ const AnimalesDetail = {
 
             <div style="margin: 12px 0;">
                 <span style="font-weight: bold; margin-right: 8px;">Género:</span>
-                <button :class="{ active: bGenero === 0 }" @click="selectGenero(0)">Masculino</button>
-                <button :class="{ active: bGenero === 1 }" @click="selectGenero(1)">Hembra</button>
+                <button :style="{ backgroundColor: bGenero === 1 ? '#ADD8E6' : 'inherit' }" @click="selectGenero(1)">Macho</button>
+                <button :style="{ backgroundColor: bGenero === 0 ? '#ADD8E6' : 'inherit' }" @click="selectGenero(0)">Hembra</button>
             </div>
 
             <div v-if="loading" style="display: flex; justify-content: center; align-items: center; height: 180px;">
@@ -26,10 +26,10 @@ const AnimalesDetail = {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in animales" :key="item.cAnimal || item.id" style="border-bottom: 1px solid #ccc;">
-                            <td style="border: 1px solid #ccc; padding: 8px;">{{ item.cAnimal || item.id }}</td>
+                        <tr v-for="item in animales" :key="item.cRilAnimal" @click="goToAnimalDetail(item.cRilAnimal)" style="border-bottom: 1px solid #ccc; cursor: pointer; transition: background-color 0.2s;" @mouseover="$event.target.parentElement.style.backgroundColor = '#f0f0f0'" @mouseout="$event.target.parentElement.style.backgroundColor = ''">
+                            <td style="border: 1px solid #ccc; padding: 8px;">{{ item.cRilAnimal || item.cAnimal || item.id }}</td>
                             <td style="border: 1px solid #ccc; padding: 8px;">{{ item.dAnimal || item.descripcion || '-' }}</td>
-                            <td style="border: 1px solid #ccc; padding: 8px;">{{ item.bGenero === 0 ? 'Masculino' : item.bGenero === 1 ? 'Hembra' : item.bGenero }}</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">{{ item.bGenero === 1 ? 'Macho' : item.bGenero === 0 ? 'Hembra' : item.bGenero }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -41,7 +41,7 @@ const AnimalesDetail = {
     setup() {
         const selectedCriador = ref(router.currentRoute.params.cCriador || '');
         const selectedEstablecimiento = ref(Number(router.currentRoute.params.cEstablecimiento) || 0);
-        const bGenero = ref(0);
+        const bGenero = ref(1);
         const animales = ref([]);
         const loading = ref(false);
         const error = ref('');
@@ -72,7 +72,6 @@ const AnimalesDetail = {
                 const data = await response.json();
 
                 // Assume API returns an array directly, or in data.Animales
-                debugger;
                 if (Array.isArray(data)) {
                     animales.value = data;
                 } else if (Array.isArray(data.Animales)) {
@@ -96,10 +95,14 @@ const AnimalesDetail = {
             fetchAnimales();
         };
 
+        const goToAnimalDetail = (cRilAnimal) => {
+            router.push(`/animal/${cRilAnimal}`);
+        };
+
         onMounted(() => {
             fetchAnimales();
         });
 
-        return { selectedCriador, selectedEstablecimiento, bGenero, animales, loading, error, selectGenero };
+        return { selectedCriador, selectedEstablecimiento, bGenero, animales, loading, error, selectGenero, goToAnimalDetail };
     }
 };
