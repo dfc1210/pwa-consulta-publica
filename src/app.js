@@ -48,7 +48,8 @@ const Login = {
                     credentials: 'include',
                     body: new URLSearchParams({
                         user: username.value,
-                        password: password.value
+                        password: password.value,
+                        rememberMe: rememberMe.value ? 'true' : 'false'
                     })
                 });
 
@@ -214,7 +215,7 @@ const AnimalDetail = {
                         <tbody>
                             <tr v-for="(value, key) in datosData" :key="key">
                                 <td style="background:#d4edda; padding: 8px; text-align:left; vertical-align: top; width: 30%;">{{ key }}</td>
-                                <td style="padding: 8px; text-align:left;">{{ value == null ? '-' : value.toString().toUpperCase() }}</td>
+                                <td style="padding: 8px; text-align:left;">{{ value == null ? '-' : (typeof value === 'object' ? JSON.stringify(value) : value.toString()).toUpperCase() }}</td>
                             </tr>
                         </tbody>
                     </table>
