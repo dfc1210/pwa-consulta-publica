@@ -45,6 +45,7 @@ const Login = {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
+                    credentials: 'include',
                     body: new URLSearchParams({
                         user: username.value,
                         password: password.value
@@ -264,7 +265,7 @@ const AnimalDetail = {
                 params.set('cRilAnimal', cRilAnimal.value.toString());
 
                 const url = `${window.CONSTANTS?.API_URLS?.ANIMAL_DETALLE}?${params.toString()}`;
-                const response = await fetch(url);
+                const response = await fetch(url, { credentials: 'include' });
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);

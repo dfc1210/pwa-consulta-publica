@@ -61,7 +61,7 @@ const AnimalesDetail = {
                 params.set('bGenero', bGenero.value.toString());
 
                 const url = `${window.CONSTANTS.API_URLS.CRIADORES_ANIMALES}?${params.toString()}`;
-                const response = await fetch(url);
+                const response = await fetch(url, { credentials: 'include' });
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
