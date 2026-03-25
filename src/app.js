@@ -209,9 +209,15 @@ const AnimalDetail = {
                 
                 <div v-else-if="activeTab === 'datos'">
                     <h2>Datos Generales</h2>
-                    <div v-if="datosData" style="padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;">
-                        <pre style="white-space: pre-wrap; word-wrap: break-word; font-size: 12px;">{{ JSON.stringify(datosData, null, 2) }}</pre>
-                    </div>
+                    <table v-if="datosData" style="width: 100%; border-collapse: collapse;">
+                        <tbody>
+                            <tr v-for="(value, key) in datosData" :key="key">
+                                <td style="background:#d4edda; padding: 8px; text-align:left; vertical-align: top; width: 30%;">{{ key }}</td>
+                                <td style="padding: 8px; text-align:left;">{{ value == null ? '-' : value.toString().toUpperCase() }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p v-else style="color: #666;">No hay datos disponibles.</p>
                 </div>
 
                 <div v-else-if="activeTab === 'pedigree'">

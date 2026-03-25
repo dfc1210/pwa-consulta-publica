@@ -21,15 +21,13 @@ const AnimalesDetail = {
                     <thead>
                         <tr>
                             <th style="border: 1px solid #ccc; padding: 8px;">ID Animal</th>
-                            <th style="border: 1px solid #ccc; padding: 8px;">Descripción</th>
-                            <th style="border: 1px solid #ccc; padding: 8px;">Genero</th>
+                            <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">RP</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="item in animales" :key="item.cRilAnimal" @click="goToAnimalDetail(item.cRilAnimal)" style="border-bottom: 1px solid #ccc; cursor: pointer; transition: background-color 0.2s;" @mouseover="$event.target.parentElement.style.backgroundColor = '#f0f0f0'" @mouseout="$event.target.parentElement.style.backgroundColor = ''">
                             <td style="border: 1px solid #ccc; padding: 8px;">{{ item.cRilAnimal || item.cAnimal || item.id }}</td>
-                            <td style="border: 1px solid #ccc; padding: 8px;">{{ item.dAnimal || item.descripcion || '-' }}</td>
-                            <td style="border: 1px solid #ccc; padding: 8px;">{{ item.bGenero === 1 ? 'Macho' : item.bGenero === 0 ? 'Hembra' : item.bGenero }}</td>
+                            <td style="border: 1px solid #ccc; padding: 8px; text-align: left;">{{ (item.RP || '').toString().toUpperCase() }}</td>
                         </tr>
                     </tbody>
                 </table>
