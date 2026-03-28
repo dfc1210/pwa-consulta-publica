@@ -1,4 +1,4 @@
-const RandomList = {
+const CriadoresList = {
     template: `
         <div class="card">
             <button @click="$router.go(-1)">Back</button>
@@ -38,9 +38,9 @@ const RandomList = {
 
         onMounted(async () => {
             try {
-                const response = await fetch(window.CONSTANTS.API_URLS.CRIADORES_PUBLICOS);
+                const response = await fetch(window.CONSTANTS.API_URLS.CRIADORES_PUBLICOS, { credentials: 'include' });
                 const data = await response.json();
-                items.value = Array.isArray(data.DB.Criadores) ? data.DB.Criadores : [];
+                items.value = Array.isArray(data.Criadores) ? data.Criadores : [];
             } catch (error) {
                 console.error('Error fetching data:', error);
                 items.value = [];
@@ -48,7 +48,7 @@ const RandomList = {
         });
 
         const viewDetails = (cCriador) => {
-            router.push(`/establecimientos/${cCriador}`);
+            router.push(`/criador/${cCriador}/establecimientos`);
         };
 
         return { items, search, filteredItems, viewDetails };

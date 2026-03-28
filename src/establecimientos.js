@@ -1,8 +1,9 @@
-const EstablecimientosDetail = {
+const EstablecimientosList = {
     template: `
         <div class="card">
             <button @click="$router.go(-1)">Back</button>
-            <h1>Establecimientos - Criador {{ selectedCriadorCode }}</h1>
+            <h1>Establecimientos</h1>
+            <h2>Criador {{ selectedCriadorCode }}</h2>
             <div v-if="loading" style="display: flex; justify-content: center; align-items: center; height: 300px;">
                 <div class="loader"></div>
             </div>
@@ -35,9 +36,9 @@ const EstablecimientosDetail = {
 
         onMounted(async () => {
             try {
-                const response = await fetch(window.CONSTANTS.API_URLS.CRIADORES_PUBLICOS);
+                const response = await fetch(window.CONSTANTS.API_URLS.CRIADORES_PUBLICOS, { credentials: 'include' });
                 const data = await response.json();
-                const allEstablecimientos = Array.isArray(data.DB.Establecimientos) ? data.DB.Establecimientos : [];
+                const allEstablecimientos = Array.isArray(data.Establecimientos) ? data.Establecimientos : [];
                 establecimientos.value = allEstablecimientos.filter(est => est.cCriador === selectedCriadorCode.value);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -48,7 +49,7 @@ const EstablecimientosDetail = {
         });
 
         const viewAnimales = (cEstablecimiento) => {
-            router.push(`/establecimientos/${selectedCriadorCode.value}/animales/${cEstablecimiento}`);
+            router.push(`/criador/${selectedCriadorCode.value}/establecimiento/${cEstablecimiento}/animales`);
         };
 
         return { selectedCriadorCode, establecimientos, loading, viewAnimales };

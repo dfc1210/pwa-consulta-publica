@@ -2,14 +2,16 @@ const Login = {
     template: `
         <div class="card">
             <h1>Login</h1>
-            <input v-model="username" placeholder="Username" /><br>
-            <input type="password" v-model="password" placeholder="Password" /><br>
-            <label><input type="checkbox" v-model="rememberMe" /> Remember me</label><br>
-            <button @click="simpleLogin">Login</button>
-            <button @click="clearStorage">Clear Storage</button>
-            <hr>
-            <button v-if="hasBiometrics" @click="biometricLogin">Login with Fingerprint</button>
-            <p v-if="error" style="color:red">{{ error }}</p>
+            <form>
+                <input v-model="username" placeholder="Username" autocomplete="username"/><br>
+                <input type="password" v-model="password" placeholder="Password" autocomplete="current-password"/><br>
+                <label><input type="checkbox" v-model="rememberMe" /> Remember me</label><br>
+                <button @click="simpleLogin">Login</button>
+                <button @click="clearStorage">Clear Storage</button>
+                <hr>
+                <button v-if="hasBiometrics" @click="biometricLogin">Login with Fingerprint</button>
+                <p v-if="error" style="color:red">{{ error }}</p>
+            </form>
         </div>
     `,
     setup() {
@@ -21,10 +23,10 @@ const Login = {
         const isEnrolled = ref(!!localStorage.getItem('biometric_id'));
         const error = ref('');
         const hasBiometrics = ref(window.PublicKeyCredential !== undefined);
-
+        
         onMounted(() => {
             if (isLoggedIn.value) {
-                router.push('/main');
+                resolve_navigation();
             }
         });
 
@@ -70,18 +72,55 @@ const Login = {
 
                 const text = (await resp.text()).trim();
 
+                // Try to parse as JSON and check for Criadores/Establecimientos
+                let json = null;
+                try {
+                    json = JSON.parse(text);
+                    if (Array.isArray(json.Criadores)) {
+                        localStorage.setItem('Criadores', JSON.stringify(json.Criadores));
+                    } else {
+                        localStorage.setItem('Criadores', JSON.stringify([]));
+                    }
+                    if (json.DATA_CRIADOR_ACCESO != null && json.DATA_CRIADOR_ACCESO != '') {
+                        localStorage.setItem('DataCriador', JSON.stringify(json.DATA_CRIADOR_ACCESO.Criadores[0]));
+                    } else {
+                        localStorage.setItem('DataCriador', null);
+                    }
+                    if (json.ROLES_CRIADOR_ACCESO != null) {
+                        localStorage.setItem('CodigoCriador', json.ROLES_CRIADOR_ACCESO);
+                    } else {
+                        localStorage.setItem('CodigoCriador', 0);
+                    }
+
+                    if (Array.isArray(json.Establecimientos)) {
+                        localStorage.setItem('Establecimientos', JSON.stringify(json.Establecimientos));
+                    } else {
+                        localStorage.setItem('Establecimientos', JSON.stringify([]));
+                    }
+                    if (json.DATA_ESTABLECIMIENTO_ACCESO != null && json.DATA_ESTABLECIMIENTO_ACCESO != '') {
+                        localStorage.setItem('DataEstablecimiento', JSON.stringify(json.DATA_ESTABLECIMIENTO_ACCESO.Establecimientos[0]));
+                    } else {
+                        localStorage.setItem('DataEstablecimiento', null);
+                    }
+                    if (json.ROLES_ESTABLECIMIENTO_ACCESO != null) {
+                        localStorage.setItem('CodigoEstablecimiento', json.ROLES_ESTABLECIMIENTO_ACCESO);
+                    } else {
+                        localStorage.setItem('CodigoEstablecimiento', 0);
+                    }
+
+                } catch (e) {
+                    // Not JSON, continue with text checks
+                }
+
                 // Define your success condition depending on backend response. Common options:
                 if (/^(true|ok|success)$/i.test(text) || text.toLowerCase().includes('autenticaci') || text.toLowerCase().includes('logon')) {
                     return true;
                 }
 
-                try {
-                    const json = JSON.parse(text);
+                if (json) {
                     if (json.Result === true || json.success === true || json.authenticated === true || json.isLoggedIn === true) {
                         return true;
                     }
-                } catch (e) {
-                    // not JSON, keep fall-through
                 }
 
                 error.value = 'Authentication failed: ' + text;
@@ -92,13 +131,30 @@ const Login = {
             }
         };
 
+        const resolve_navigation = () => {
+            let codigoCriador = localStorage.getItem('CodigoCriador') || 0;
+            let codigoEstablecimiento = localStorage.getItem('CodigoEstablecimiento') || 0;
+
+            localStorage.setItem('consulta_publica', codigoCriador == 0 && codigoEstablecimiento == 0);
+
+            if (codigoCriador != 0) {
+                
+                router.push(`/criador/${codigoCriador}/establecimientos`);
+            } else if (codigoEstablecimiento != 0) {
+                router.push(`/criador/${codigoCriador}/establecimiento/${codigoEstablecimiento}/animales`);
+            } else {
+                router.push('/main');
+            }
+        };
+
         const simpleLogin = async () => {
             const ok = await submitCredentials();
             if (!ok) return;
-
+            
             const now = Date.now();
             const sessionDurationMs = 60 * 60 * 1000; // 1h for non-remember
 
+            localStorage.setItem('refresh', Math.random());
             localStorage.setItem('user', username.value);
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('rememberMe', rememberMe.value ? 'true' : 'false');
@@ -110,7 +166,9 @@ const Login = {
             }
 
             isLoggedIn.value = true;
-            router.push('/main');
+
+            resolve_navigation();
+
         };
 
         const clearStorage = () => {
@@ -146,10 +204,10 @@ const Login = {
 const MainScreen = {
     template: `
         <div class="card">
-            <h1>Welcome Back!</h1>
+            <h1>MERINO - CONSULTA</h1>
             <p>Hello, {{ username }}!</p>
             <router-link to="/criadores"><button>Consulta de criadores</button></router-link>
-            <button v-if="!isEnrolled" @click="registerBiometric">Enable Fingerprint Login</button>
+            <button v-if="false && !isEnrolled" @click="registerBiometric">Enable Fingerprint Login</button>
             <button @click="logout">Logout</button>
         </div>
     `,
@@ -190,119 +248,12 @@ const MainScreen = {
     }
 };
 
-const AnimalDetail = {
-    template: `
-        <div class="card">
-            <button @click="$router.go(-1)">Back</button>
-            <h1>Datos del Animal - {{ cRilAnimal }}</h1>
-
-            <div style="margin: 12px 0; display: flex; gap: 8px;">
-                <button :style="{ backgroundColor: activeTab === 'datos' ? '#ADD8E6' : 'inherit' }" @click="setTab('datos')">Datos</button>
-                <button :style="{ backgroundColor: activeTab === 'pedigree' ? '#ADD8E6' : 'inherit' }" @click="setTab('pedigree')">Pedigree</button>
-                <button :style="{ backgroundColor: activeTab === 'produccion' ? '#ADD8E6' : 'inherit' }" @click="setTab('produccion')">Producción</button>
-            </div>
-
-            <div v-if="loading" style="display: flex; justify-content: center; align-items: center; height: 180px;">
-                <div class="loader"></div>
-            </div>
-
-            <div v-else>
-                <p v-if="error" style="color: red;">{{ error }}</p>
-                
-                <div v-else-if="activeTab === 'datos'">
-                    <h2>Datos Generales</h2>
-                    <table v-if="datosData" style="width: 100%; border-collapse: collapse;">
-                        <tbody>
-                            <tr v-for="(value, key) in datosData" :key="key">
-                                <td style="background:#d4edda; padding: 8px; text-align:left; vertical-align: top; width: 30%;">{{ key }}</td>
-                                <td style="padding: 8px; text-align:left;">{{ value == null ? '-' : (typeof value === 'object' ? JSON.stringify(value) : value.toString()).toUpperCase() }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p v-else style="color: #666;">No hay datos disponibles.</p>
-                </div>
-
-                <div v-else-if="activeTab === 'pedigree'">
-                    <h2>Pedigree</h2>
-                    <div v-if="pedigreeData" style="padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;">
-                        <pre style="white-space: pre-wrap; word-wrap: break-word; font-size: 12px;">{{ JSON.stringify(pedigreeData, null, 2) }}</pre>
-                    </div>
-                </div>
-
-                <div v-else-if="activeTab === 'produccion'">
-                    <h2>Producción</h2>
-                    <div v-if="produccionData" style="padding: 12px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;">
-                        <pre style="white-space: pre-wrap; word-wrap: break-word; font-size: 12px;">{{ JSON.stringify(produccionData, null, 2) }}</pre>
-                    </div>
-                </div>
-            </div>
-
-            <button @click="$router.go(-1)">Back</button>
-        </div>
-    `,
-    setup() {
-        const cRilAnimal = ref(router.currentRoute.params.cRilAnimal || '');
-        const activeTab = ref('datos');
-        const datosData = ref(null);
-        const pedigreeData = ref(null);
-        const produccionData = ref(null);
-        const loading = ref(false);
-        const error = ref('');
-
-        const fetchAnimalDetail = async () => {
-            if (!cRilAnimal.value) {
-                error.value = 'Animal code not provided';
-                return;
-            }
-
-            loading.value = true;
-            error.value = '';
-            datosData.value = null;
-            pedigreeData.value = null;
-            produccionData.value = null;
-
-            try {
-                const params = new URLSearchParams();
-                params.set('cRilAnimal', cRilAnimal.value.toString());
-
-                const url = `${window.CONSTANTS?.API_URLS?.ANIMAL_DETALLE}?${params.toString()}`;
-                const response = await fetch(url, { credentials: 'include' });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                datosData.value = data.Datos || null;
-                pedigreeData.value = data.Pedigree || null;
-                produccionData.value = data.Produccion || null;
-            } catch (err) {
-                console.error('Error fetching animal detail:', err);
-                error.value = `No se pudo cargar el detalle del animal: ${err.message}`;
-            } finally {
-                loading.value = false;
-            }
-        };
-
-        const setTab = (tab) => {
-            activeTab.value = tab;
-        };
-
-        onMounted(() => {
-            fetchAnimalDetail();
-        });
-
-        return { cRilAnimal, activeTab, datosData, pedigreeData, produccionData, loading, error, setTab };
-    }
-};
-
 const router = new VueRouter({ routes: [
     { path: '/', component: Login },
     { path: '/main', component: MainScreen },
-    { path: '/criadores', component: RandomList },
-    { path: '/establecimientos/:cCriador', component: EstablecimientosDetail },
-    { path: '/establecimientos/:cCriador/animales/:cEstablecimiento', component: AnimalesDetail },
+    { path: '/criadores', component: CriadoresList },
+    { path: '/criador/:cCriador/establecimientos', component: EstablecimientosList },
+    { path: '/criador/:cCriador/establecimiento/:cEstablecimiento/animales', component: AnimalesList },
     { path: '/animal/:cRilAnimal', component: AnimalDetail }
 ], mode: 'hash' });
 
@@ -328,6 +279,7 @@ router.beforeEach((to, from, next) => {
 
     next();
 });
+
 
 new Vue({ el: '#app', router, mounted() {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js');

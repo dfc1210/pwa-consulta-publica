@@ -1,4 +1,4 @@
-const AnimalesDetail = {
+const AnimalesList = {
     template: `
         <div class="card">
             <button @click="$router.go(-1)">Back</button>
