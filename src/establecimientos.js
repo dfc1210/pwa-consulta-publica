@@ -1,6 +1,6 @@
 const EstablecimientosList = {
     template: `
-        <div class="card">
+        <div class="pwa-page">
             <button @click="$router.go(-1)">Back</button>
             <h1>Establecimientos</h1>
             <h2>Criador {{ selectedCriadorCode }}</h2>

@@ -1,6 +1,6 @@
 const CriadoresList = {
     template: `
-        <div class="card">
+        <div class="pwa-page">
             <button @click="$router.go(-1)">Back</button>
             <h1>Consulta de criadores</h1>
             <input v-model="search" placeholder="Buscar..." />

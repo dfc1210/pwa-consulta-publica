@@ -1,6 +1,6 @@
 const Login = {
     template: `
-        <div class="card">
+        <div class="pwa-page">
             <h1>Login</h1>
             <form>
                 <input v-model="username" placeholder="Username" autocomplete="username"/><br>
@@ -203,7 +203,7 @@ const Login = {
 
 const MainScreen = {
     template: `
-        <div class="card">
+        <div class="pwa-page">
             <h1>MERINO - CONSULTA</h1>
             <p>Hello, {{ username }}!</p>
             <router-link to="/criadores"><button>Consulta de criadores</button></router-link>

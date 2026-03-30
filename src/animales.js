@@ -1,6 +1,6 @@
 const AnimalesList = {
     template: `
-        <div class="card">
+        <div class="pwa-page">
             <button @click="$router.go(-1)">Back</button>
             <h1>Animales - Criador {{ selectedCriador }} / Establecimiento {{ selectedEstablecimiento }}</h1>
 
